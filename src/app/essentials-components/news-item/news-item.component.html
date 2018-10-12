@@ -1,0 +1,12 @@
+<div class="blog-post has-edit-button" style="position: relative;">
+  <bre-edit-content *ngIf="content._meta" [metaData]="content._meta"></bre-edit-content>
+  <h2 class="blog-post-title">
+    <a *ngIf="content._links.site.type === 'internal'" routerLink={{content._links.site.href}}>{{content.title}}</a>
+    <a *ngIf="content._links.site.type !== 'internal'" href={{content._links.site.href}}>{{content.title}}</a>
+  </h2>
+  <p class="blog-post-meta">
+    <span class="blog-post-date">{{content.date | date}}</span>
+    <span class="author">{{content.author}}</span>
+  </p>
+  <p>{{content.introduction}}</p>
+</div>

@@ -1,0 +1,10 @@
+<div class="row" *ngIf="items; else configureComponentBlock">
+  <div class="col-sm-12 news-list">
+    <app-essentials-news-item *ngFor="let item of items" [contentRef]="item"></app-essentials-news-item>
+  </div>
+  <nav class="blog-pagination">
+    <span class="btn btn-outline-primary disabled">Older</span>
+    <span class="btn btn-outline-secondary disabled">Newer</span>
+  </nav>
+</div>
+<ng-template #configureComponentBlock>Click to configure {{configuration.label}}</ng-template>

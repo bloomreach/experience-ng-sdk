@@ -1,0 +1,4 @@
+<ng-container *ngFor="let component of configuration?.components" [ngSwitch]="component.type">
+  <bre-cms-component *ngSwitchCase="'COMPONENT'" [configuration]="component"></bre-cms-component>
+  <bre-container *ngSwitchCase="'CONTAINER_COMPONENT'" [configuration]="component"></bre-container>
+</ng-container>
