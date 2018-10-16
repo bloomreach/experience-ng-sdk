@@ -60,16 +60,25 @@ export class PageModelService {
     this.channelManagerApi = channelManagerApi;
   }
 
-  updateComponent(componentId, propertiesMap) {
+  updateComponent(componentId: string, propertiesMap: any) {
+    // TODO: add debugging to requestContextService
+    const debugging = true;
+    return this._updateComponent(componentId, propertiesMap, this.pageModel, debugging);
+  }
+
+  _updateComponent(componentId: string, propertiesMap: any, pageModel: any, debugging: boolean) {
+    if (debugging) {
+      console.log(`### React SDK debugging ### component update triggered for '%s' with properties:`, componentId);
+      console.dir(propertiesMap);
+    }
     // find the component that needs to be updated in the page structure object using its ID
-    const componentToUpdate = findChildById(this.pageModel, componentId);
+    const componentToUpdate = findChildById(pageModel, componentId);
     if (componentToUpdate !== undefined) {
       const body = this.toUrlEncodedFormData(propertiesMap);
       const url: string = this.buildApiUrl(componentId);
       return this.http.post<any>(url, body, this.postOptions)
         .pipe(
-          tap(
-          response => {
+          tap(response => {
               // update configuration of changed component in existing page model
               if (response.page) {
                 componentToUpdate.parent[componentToUpdate.idx] = response.page;
@@ -90,7 +99,7 @@ export class PageModelService {
     }
   }
 
-  getContentViaReference (contentRef: string): any {
+  getContentViaReference(contentRef: string): any {
     if (contentRef) {
       return jsonpointer.get(this.pageModel, contentRef);
     }

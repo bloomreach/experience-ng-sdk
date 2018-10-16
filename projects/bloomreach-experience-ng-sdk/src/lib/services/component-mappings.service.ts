@@ -6,18 +6,8 @@ export interface ComponentMappings {
 
 @Injectable()
 export class ComponentMappingsService {
-  componentMappings: ComponentMappings;
-
-  constructor() {
+  constructor(public componentMappings: ComponentMappings) {
     this.componentMappings = {};
-  }
-
-  getComponentMappings(): ComponentMappings {
-    return this.componentMappings;
-  }
-
-  setComponentMappings(componentMappings: ComponentMappings) {
-    this.componentMappings = componentMappings;
   }
 
   getComponent(type: string) {
