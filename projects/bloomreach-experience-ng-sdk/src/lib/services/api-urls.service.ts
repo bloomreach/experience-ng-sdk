@@ -21,7 +21,7 @@ export class ApiUrlsService {
     this.compilePathRegExp(this.apiUrls);
   }
 
-  compilePathRegExp(apiUrls: ApiUrls): void {
+  private compilePathRegExp(apiUrls: ApiUrls): void {
     this.compiledPathRegexp = _compilePathRegexp(apiUrls);
   }
 

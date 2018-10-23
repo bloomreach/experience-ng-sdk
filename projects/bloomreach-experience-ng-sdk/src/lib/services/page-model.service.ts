@@ -61,7 +61,7 @@ export class PageModelService {
     return this.pageModelSubject;
   }
 
-  setPageModelSubject(pageModel: any): void {
+  private setPageModelSubject(pageModel: any): void {
     this.pageModelSubject.next(pageModel);
   }
 

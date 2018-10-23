@@ -28,21 +28,21 @@ export class InitializeSdkService {
     });
   }
 
-  fetchPageModel(): void {
+  private fetchPageModel(): void {
     this.pageModelService.fetchPageModel().subscribe();
   }
 
   // using arrow function so that scope (this) is preserved on callback
-  updateComponent = (id: string, propertiesMap): void => {
+  private updateComponent = (id: string, propertiesMap): void => {
     this.pageModelService.updateComponent(id, propertiesMap).subscribe();
   }
 
-  initializeCmsIntegration(): void {
+  private initializeCmsIntegration(): void {
     _initializeCmsIntegration(this.onCmsInitialization, this.updateComponent);
   }
 
   // using arrow function so that scope (this) is preserved on callback
-  onCmsInitialization = (cms: any): void => {
+  private onCmsInitialization = (cms: any): void => {
     const debugging: boolean = this.requestContextService.getDebugging();
     this.pageModelService.setChannelManagerApi(cms);
     if (this.pageModelService.getPageModel()) {
