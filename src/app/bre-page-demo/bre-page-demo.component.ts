@@ -22,10 +22,8 @@ export class BrePageDemoComponent implements OnInit {
 
   apiUrls = {
     live: {
-      port: 9080
     },
     preview: {
-      port: 9080
     }
   };
 
