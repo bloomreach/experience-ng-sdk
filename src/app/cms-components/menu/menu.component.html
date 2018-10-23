@@ -1,4 +1,5 @@
-<ul class="navbar-nav mr-auto">
+<ul class="navbar-nav mr-auto has-edit-button">
+  <bre-cms-edit-button *ngIf="menuConfiguration" [configuration]="menuConfiguration"></bre-cms-edit-button>
   <li class="nav-item" *ngFor="let menuItem of menuItems">
     <a class="nav-link" *ngIf="menuItem._links.site.type === 'internal'" routerLink={{menuItem._links.site.href}}>
       {{menuItem.name | titlecase }}<span *ngIf="menuItem.selected" class="sr-only">(current)</span>

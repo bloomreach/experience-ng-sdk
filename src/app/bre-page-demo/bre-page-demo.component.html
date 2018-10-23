@@ -1,17 +1,15 @@
-<bre-page [urlPath]="urlPath" [cmsUrls]="cmsUrls" [componentMappings]="componentMappings">
-  <div id="header">
-    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-      <span class="navbar-brand" href="#">Angular Demo</span>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
-              aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarCollapse">
-        <bre-render-cms-component path="menu"></bre-render-cms-component>
-      </div>
-    </nav>
-  </div>
-  <div class="container marketing">
-    <bre-render-cms-component></bre-render-cms-component>
-  </div>
-</bre-page>
+<div id="header">
+  <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+    <span class="navbar-brand" href="#">Angular Demo</span>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse"
+      aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+      <bre-render-cms-component [path]="'menu'" [renderComponent]="menuComponent"></bre-render-cms-component>
+    </div>
+  </nav>
+</div>
+<div class="container marketing">
+  <bre-render-cms-component></bre-render-cms-component>
+</div>

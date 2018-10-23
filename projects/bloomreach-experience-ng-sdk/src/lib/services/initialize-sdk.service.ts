@@ -1,74 +1,53 @@
 import { Injectable } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 
-import addBodyComments from '../utils/add-html-comment';
 import { RequestContextService } from './request-context.service';
 import { PageModelService } from './page-model.service';
 
+import { _initializeCmsIntegration } from '../common-sdk/utils/initialize-cms-integration';
+import { logCmsCreateOverlay } from '../common-sdk/utils/page-model';
+
 @Injectable()
 export class InitializeSdkService {
-  private cms: any;
-  private pageModel: any;
+  constructor(
+    private pageModelService: PageModelService,
+    private requestContextService: RequestContextService,
+    private router: Router
+  ) {}
 
-  constructor(private pageModelService: PageModelService,
-              private requestContextService: RequestContextService,
-              private router: Router) {}
-
-  initialize() {
+  initialize(): void {
     this.initializeCmsIntegration();
     this.fetchPageModel();
 
     // // fetch Page Model API when navigated to a PageComponent
-    this.router.events
-      .subscribe((event) => {
-        if (event instanceof NavigationEnd) {
-          this.requestContextService.parseUrlPath(event.url);
-          this.fetchPageModel();
-        }
-      });
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.requestContextService.parseUrlPath(event.url);
+        this.fetchPageModel();
+      }
+    });
   }
 
-  fetchPageModel() {
-    this.pageModelService.fetchPageModel()
-      .subscribe(pageModel => {
-        if (pageModel && pageModel.page) {
-          this.pageModel = pageModel.page;
-          addBodyComments(this.pageModel, this.requestContextService.isPreviewRequest());
-          if (this.cms) {
-            this.cms.createOverlay();
-          }
-        }
-      });
+  fetchPageModel(): void {
+    this.pageModelService.fetchPageModel().subscribe();
   }
 
-  updateComponent(id: string, propertiesMap): void {
-    this.pageModelService.updateComponent(id, propertiesMap)
-      .subscribe(response => {
-        // TODO: improve
-        const pageModel = this.pageModelService.getPageModel();
-        this.pageModel = pageModel.page;
-        addBodyComments(this.pageModel, this.requestContextService.isPreviewRequest());
-        // rerender CMS overlay
-        if (this.cms) {
-          this.cms.createOverlay();
-        }
-      });
+  // using arrow function so that scope (this) is preserved on callback
+  updateComponent = (id: string, propertiesMap): void => {
+    this.pageModelService.updateComponent(id, propertiesMap).subscribe();
   }
 
-  private initializeCmsIntegration() {
-    if (typeof window !== 'undefined') {
-      (<any>window).SPA = {
-        init: (cms) => {
-          this.pageModelService.setChannelManagerApi(cms);
-          this.cms = cms;
-          if (this.pageModel) {
-            this.cms.createOverlay();
-          }
-        },
-        renderComponent: (id, propertiesMap) => {
-          this.updateComponent(id, propertiesMap);
-        }
-      };
+  initializeCmsIntegration(): void {
+    _initializeCmsIntegration(this.onCmsInitialization, this.updateComponent);
+  }
+
+  // using arrow function so that scope (this) is preserved on callback
+  onCmsInitialization = (cms: any): void => {
+    const debugging: boolean = this.requestContextService.getDebugging();
+    this.pageModelService.setChannelManagerApi(cms);
+    if (this.pageModelService.getPageModel()) {
+      cms.createOverlay();
+      logCmsCreateOverlay(debugging);
     }
   }
 }

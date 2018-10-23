@@ -1,34 +1,26 @@
 import { Component, ElementRef, Input, OnInit } from '@angular/core';
 
-import { CmsMetaDataComponent } from '../cms-meta-data/cms-meta-data.component';
-import { PageModelService } from '../../../services/page-model.service';
-import getNestedObject from '../../../utils/get-nested-object';
+import { RequestContextService } from '../../../services/request-context.service';
+
+import { addContainerMetaData } from '../../../common-sdk/utils/cms-meta-data';
 
 @Component({
   selector: 'bre-container',
   templateUrl: './container.component.html',
   styleUrls: ['./container.component.css']
 })
-export class ContainerComponent extends CmsMetaDataComponent implements OnInit {
+export class ContainerComponent implements OnInit {
   @Input() configuration;
+  preview = false;
 
-  constructor(
-    private pageModelService: PageModelService,
-    elementRef: ElementRef
-  ) { super(elementRef); }
+  constructor(private elementRef: ElementRef, private requestContextService: RequestContextService) {}
 
   ngOnInit(): void {
-    this.addComments();
+    this.preview = this.requestContextService.isPreviewRequest();
+    this.addCmsMetaData(this.preview);
   }
 
-  addComments(): void {
-    const beginNodeSpan = getNestedObject(this.configuration, ['_meta', 'beginNodeSpan', 0, 'data']);
-    if (beginNodeSpan) {
-      super.addComment(beginNodeSpan, 'afterbegin');
-    }
-    const endNodeSpan = getNestedObject(this.configuration, ['_meta', 'endNodeSpan', 0, 'data']);
-    if (endNodeSpan) {
-      super.addComment(endNodeSpan, 'beforeend');
-    }
+  addCmsMetaData(preview: boolean): void {
+    addContainerMetaData(preview, this.elementRef.nativeElement, this.configuration);
   }
 }

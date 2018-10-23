@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PlaceholderComponent } from './placeholder.component';
+import { CmsEditButtonComponent } from './cms-edit-button.component';
 
-describe('PlaceholderComponent', () => {
-  let component: PlaceholderComponent;
-  let fixture: ComponentFixture<PlaceholderComponent>;
+describe('CmsEditButtonComponent', () => {
+  let component: CmsEditButtonComponent;
+  let fixture: ComponentFixture<CmsEditButtonComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ PlaceholderComponent ]
+      declarations: [CmsEditButtonComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(PlaceholderComponent);
+    fixture = TestBed.createComponent(CmsEditButtonComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

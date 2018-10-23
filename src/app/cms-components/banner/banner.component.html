@@ -1,5 +1,5 @@
 <div class="jumbotron has-edit-button" *ngIf="content; else configureComponentBlock">
-  <bre-edit-content *ngIf="content._meta" [metaData]="content._meta"></bre-edit-content>
+  <bre-cms-edit-button *ngIf="content" [configuration]="content"></bre-cms-edit-button>
   <h1>{{content.title}}</h1>
   <figure>
     <img src={{imageUrl}} alt={{content.title}}/>

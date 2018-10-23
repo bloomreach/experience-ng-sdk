@@ -1,12 +1,6 @@
-<ng-container [ngSwitch]="configuration?.type">
+<bre-base-component *ngIf="renderComponent" [configuration]="configuration" [renderComponent]="renderComponent"></bre-base-component>
+<ng-container *ngIf="!renderComponent" [ngSwitch]="configuration?.type">
   <bre-container *ngSwitchCase="'CONTAINER_COMPONENT'" [configuration]="configuration"></bre-container>
   <bre-base-component *ngSwitchCase="'CONTAINER_ITEM_COMPONENT'" [configuration]="configuration"></bre-base-component>
-  <ng-container *ngSwitchDefault >
-    <bre-cms-component *ngIf="configuration?.componentClass !== 'org.onehippo.cms7.essentials.components.EssentialsMenuComponent'; else menu"
-                       [configuration]="configuration"></bre-cms-component>
-  </ng-container>
+  <bre-cms-component *ngSwitchDefault [configuration]="configuration"></bre-cms-component>
 </ng-container>
-
-<ng-template #menu>
-  <bre-menu [configuration]="configuration"></bre-menu>
-</ng-template>

@@ -1,6 +1,8 @@
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+
 import { PageModelService } from '../../../services/page-model.service';
-import { getConfigurationForPath } from '../../../utils/get-configuration-for-path';
+
+import { getComponentConfiguration } from '../../../common-sdk/utils/render-cms-component';
 
 @Component({
   selector: 'bre-render-cms-component',
@@ -9,6 +11,7 @@ import { getConfigurationForPath } from '../../../utils/get-configuration-for-pa
 })
 export class RenderCmsComponent implements OnInit {
   @Input() path: string;
+  @Input() renderComponent?: any;
   configuration: any;
 
   constructor(private changeDetectorRef: ChangeDetectorRef,
@@ -20,18 +23,9 @@ export class RenderCmsComponent implements OnInit {
 
   getPageModel() {
     this.pageModelService.getPageModelSubject()
-      .subscribe( pageModel => {
+      .subscribe(pageModel => {
         if (pageModel) {
-          // render entire page if no path has been specified
-          if (!this.path) {
-            this.configuration = pageModel.page;
-          } else {
-            // or lookup component configuration using supplied path
-            this.configuration = getConfigurationForPath(this.path, pageModel);
-            if (!this.configuration) {
-              throw new Error(`Error! Could not find component at ${this.path}`);
-            }
-          }
+          this.configuration = getComponentConfiguration(this.path, pageModel);
           // force Angular to rerender
           if (!this.changeDetectorRef['destroyed']) {
             this.changeDetectorRef.detectChanges();

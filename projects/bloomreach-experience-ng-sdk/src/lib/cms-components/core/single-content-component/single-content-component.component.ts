@@ -2,7 +2,8 @@ import { Component, Input, OnInit } from '@angular/core';
 
 import { ImageUrlService } from '../../../services/image-url.service';
 import { PageModelService } from '../../../services/page-model.service';
-import getNestedObject from '../../../utils/get-nested-object';
+
+import getNestedObject from '../../../common-sdk/utils/get-nested-object';
 
 @Component({
   selector: 'bre-single-content-component',
@@ -20,14 +21,14 @@ export class SingleContentComponent implements OnInit {
     this.getContent();
   }
 
-  getContent() {
+  getContent(): void {
     const contentRef = getNestedObject(this.configuration, ['models', 'document', '$ref']);
     if (contentRef) {
       this.content = this.pageModelService.getContentViaReference(contentRef);
     }
   }
 
-  getImageUrl(imageRef) {
+  getImageUrl(imageRef): string {
     return this.imageUrlService.getImageUrl(imageRef);
   }
 }
