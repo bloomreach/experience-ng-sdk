@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { CmsUrlsService, ComponentMappingsService, InitializeSdkService, RequestContextService } from 'bloomreach-experience-ng-sdk';
+import { ApiUrlsService, ComponentMappingsService, InitializeSdkService, RequestContextService } from 'bloomreach-experience-ng-sdk';
 
-import { ContentComponent } from '../essentials-components/content/content.component';
-import { BannerComponent } from '../essentials-components/banner/banner.component';
-import { NewsListComponent } from '../essentials-components/news-list/news-list.component';
+import { ContentComponent } from '../cms-components/content/content.component';
+import { BannerComponent } from '../cms-components/banner/banner.component';
+import { MenuComponent } from '../cms-components/menu/menu.component';
+import { NewsListComponent } from '../cms-components/news-list/news-list.component';
 
 @Component({
   selector: 'app-bre-page-demo',
@@ -19,16 +20,24 @@ export class BrePageDemoComponent implements OnInit {
     'News List': NewsListComponent,
   };
 
-  cmsUrls = {};
+  apiUrls = {
+    live: {
+    },
+    preview: {
+    }
+  };
+
+  menuComponent = MenuComponent;
 
   constructor(private router: Router,
-    private cmsUrlsService: CmsUrlsService,
+    private apiUrlsService: ApiUrlsService,
     private componentMappingsService: ComponentMappingsService,
     private initializeSdkService: InitializeSdkService,
-    private requestContextService: RequestContextService) { }
+    private requestContextService: RequestContextService) {
+    }
 
   ngOnInit() {
-    this.cmsUrlsService.setCmsUrls(this.cmsUrls);
+    this.apiUrlsService.setApiUrls(this.apiUrls);
     this.componentMappingsService.setComponentMappings(this.componentMappings);
     this.requestContextService.parseUrlPath(this.router.url);
     this.initializeSdkService.initialize();

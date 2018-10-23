@@ -1,36 +1,27 @@
 import { Injectable } from '@angular/core';
 
-import jsonpointer from 'jsonpointer';
-import getNestedObject from '../utils/get-nested-object';
-
-import { CmsUrlsService } from './cms-urls.service';
+import { ApiUrlsService } from './api-urls.service';
 import { PageModelService } from './page-model.service';
+import { RequestContextService } from './request-context.service';
 
-export interface ImageReference {
-  $ref: string;
-}
+import { _getImageUrl, _getImageUrlByPath } from '../common-sdk/utils/image-url';
 
 @Injectable()
 export class ImageUrlService {
-  constructor(private cmsUrlsService: CmsUrlsService,
+  constructor(private apiUrlsService: ApiUrlsService, private requestContextService: RequestContextService,
               private pageModelService: PageModelService) {}
 
-  getImageUrl(imageRef: ImageReference): string {
+  getImageUrl(imageRef): string {
     const pageModel = this.pageModelService.getPageModel();
+    const apiUrls = this.apiUrlsService.getApiUrls();
+    const preview = this.requestContextService.isPreviewRequest();
 
-    // get image reference
-    const imageUuid = imageRef.$ref ? imageRef.$ref : undefined;
+    return _getImageUrl(imageRef, pageModel, preview, apiUrls);
+  }
 
-    // get serialized image via reference
-    const image = imageUuid ? jsonpointer.get(pageModel, imageUuid) : undefined;
-
-    // build URL
-    let imageUrl = null;
-    const cmsBaseUrl = this.cmsUrlsService.getCmsUrls().baseUrl;
-    if (getNestedObject(image, ['_links', 'site', 'href'])) {
-      imageUrl = cmsBaseUrl + image._links.site.href;
-    }
-
-    return imageUrl;
+  getImageUrlByPath(imagePath: string, variant: string): string {
+    const preview = this.requestContextService.isPreviewRequest();
+    const apiUrls = this.apiUrlsService.getApiUrls();
+    return _getImageUrlByPath(imagePath, variant, preview, apiUrls);
   }
 }

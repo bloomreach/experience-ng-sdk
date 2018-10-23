@@ -3,11 +3,19 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { BehaviorSubject, Observable, of, Subject} from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import jsonpointer from 'jsonpointer';
 
-import { CmsUrls, CmsUrlsService } from './cms-urls.service';
+import { ApiUrlsService } from './api-urls.service';
 import { RequestContextService } from './request-context.service';
-import findChildById from '../utils/find-child-by-id';
+
+import { ApiUrls } from '../common-sdk/types';
+import {
+  _buildApiUrl,
+  _getContentViaReference,
+  _logUpdateComponent,
+  _updateComponent,
+  updatePageMetaData,
+  toUrlEncodedFormData
+} from '../common-sdk/utils/page-model';
 
 @Injectable()
 export class PageModelService {
@@ -15,32 +23,33 @@ export class PageModelService {
   pageModel: any;
   pageModelSubject: Subject<any> = new BehaviorSubject<any>(this.pageModel);
 
-  private getOptions = {
+  private httpGetOptions = {
     withCredentials: true
   };
 
-  private postOptions = {
+  private httpPostOptions = {
     withCredentials: true,
-    headers: new HttpHeaders({'Content-Type': 'application/x-www-form-urlencoded'})
+    headers: new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' })
   };
 
   constructor(
     private http: HttpClient,
-    private cmsUrlsService: CmsUrlsService,
-    private requestContextService: RequestContextService) { }
+    private apiUrlsService: ApiUrlsService,
+    private requestContextService: RequestContextService
+  ) {}
 
-  fetchPageModel() {
+  fetchPageModel(): any {
     const apiUrl: string = this.buildApiUrl();
-    return this.http.get<any>(apiUrl, this.getOptions)
-      .pipe(
-        tap(
-        response => {
-            this.pageModel = response;
-            this.setPageModelSubject(response);
-          },
-        ),
-        catchError(this.handleError('fetchPageModel', undefined))
-      );
+    return this.http.get<any>(apiUrl, this.httpGetOptions).pipe(
+      tap(response => {
+        this.pageModel = response;
+        this.setPageModelSubject(response);
+        const preview: boolean = this.requestContextService.isPreviewRequest();
+        const debugging: boolean = this.requestContextService.getDebugging();
+        updatePageMetaData(this.pageModel, this.channelManagerApi, preview, debugging);
+      }),
+      catchError(this.handleError('fetchPageModel', undefined))
+    );
   }
 
   // no subject is needed for some classes that get the page-model after the initial fetch, such as the ImageUrlService
@@ -52,7 +61,7 @@ export class PageModelService {
     return this.pageModelSubject;
   }
 
-  setPageModelSubject(pageModel: any): void {
+  private setPageModelSubject(pageModel: any): void {
     this.pageModelSubject.next(pageModel);
   }
 
@@ -60,72 +69,32 @@ export class PageModelService {
     this.channelManagerApi = channelManagerApi;
   }
 
-  updateComponent(componentId, propertiesMap) {
-    // find the component that needs to be updated in the page structure object using its ID
-    const componentToUpdate = findChildById(this.pageModel, componentId);
-    if (componentToUpdate !== undefined) {
-      const body = this.toUrlEncodedFormData(propertiesMap);
-      const url: string = this.buildApiUrl(componentId);
-      return this.http.post<any>(url, body, this.postOptions)
-        .pipe(
-          tap(
-          response => {
-              // update configuration of changed component in existing page model
-              if (response.page) {
-                componentToUpdate.parent[componentToUpdate.idx] = response.page;
-              }
-              // update documents by merging with original documents map
-              if (response.content) {
-                // if page has no associated content there is no content map, create it
-                if (!this.pageModel.content) {
-                  this.pageModel.content = {};
-                }
-                Object.assign(this.pageModel.content, response.content);
-              }
-              this.setPageModelSubject(this.pageModel);
-            }
-          ),
-          catchError(this.handleError('updateComponent', undefined))
-        );
-    }
+  updateComponent(componentId: string, propertiesMap: any): any {
+    // TODO: add debugging to requestContextService
+    const debugging: boolean = this.requestContextService.getDebugging();
+    _logUpdateComponent(componentId, propertiesMap, debugging);
+
+    const body: string = toUrlEncodedFormData(propertiesMap);
+    const url: string = this.buildApiUrl(componentId);
+
+    return this.http.post<any>(url, body, this.httpPostOptions).pipe(
+      tap(response => {
+        const preview: boolean = this.requestContextService.isPreviewRequest();
+        this.pageModel = _updateComponent(response, componentId, this.pageModel, this.channelManagerApi, preview, debugging);
+        this.setPageModelSubject(this.pageModel);
+      }),
+      catchError(this.handleError('updateComponent', undefined)));
   }
 
-  getContentViaReference (contentRef: string): any {
-    if (contentRef) {
-      return jsonpointer.get(this.pageModel, contentRef);
-    }
-    return null;
-  }
-
-  // from rendering.service.js
-  private toUrlEncodedFormData(json) {
-    return Object.keys(json)
-      .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(json[key])}`)
-      .join('&');
+  getContentViaReference(contentRef: string): any {
+    return _getContentViaReference(contentRef, this.pageModel);
   }
 
   private buildApiUrl(componentId?: string): string {
-    const cmsUrls: CmsUrls = this.cmsUrlsService.getCmsUrls();
-    let url: string = cmsUrls.baseUrl;
-    // add api path to URL, and prefix with contextPath and preview-prefix if used
-    if (cmsUrls.contextPath !== '') {
-      url += '/' + cmsUrls.contextPath;
-    }
-    if (this.requestContextService.isPreviewRequest()) {
-      url += '/' + cmsUrls.previewPrefix;
-    }
-    if (cmsUrls.channelPath  !== '') {
-      url += '/' + cmsUrls.channelPath;
-    }
-    url += '/' + cmsUrls.apiPath;
-    if (this.requestContextService.getPath()) {
-      url += '/' + this.requestContextService.getPath();
-    }
-    // if component ID is supplied, URL should be a component rendering URL
-    if (componentId) {
-      url += cmsUrls.apiComponentRenderingUrlSuffix + componentId;
-    }
-    return url;
+    const apiUrls: ApiUrls = this.apiUrlsService.getApiUrls();
+    const preview: boolean = this.requestContextService.isPreviewRequest();
+    const urlPath: string = this.requestContextService.getPath();
+    return _buildApiUrl(apiUrls, preview, urlPath, componentId);
   }
 
   /**
@@ -134,7 +103,7 @@ export class PageModelService {
    * @param operation - name of the operation that failed
    * @param result - optional value to return as the observable result
    */
-  private handleError<T> (operation = 'operation', result?: T) {
+  private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
       console.log(`${operation} failed: ${error.message}`);
       console.log(error);
@@ -143,5 +112,4 @@ export class PageModelService {
       return of(result as T);
     };
   }
-
 }

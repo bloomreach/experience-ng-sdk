@@ -1,52 +1,24 @@
 import { Injectable } from '@angular/core';
 
-import pathToRegexp from 'path-to-regexp';
+import { ApiUrlsService } from './api-urls.service';
 
-import { CmsUrls } from './cms-urls.service';
-
-export interface RequestContext {
-  path: string;
-  preview: boolean;
-}
+import { ApiUrls, CompiledPathRegexp, Request, RequestContext } from '../common-sdk/types';
+import { _parseRequest } from '../common-sdk/utils/request-context';
 
 @Injectable()
 export class RequestContextService {
   private requestContext: RequestContext;
-  private regexpKeys: pathToRegexp.Key[];
-  private regexp: any;
+  private debugging = false;
 
-  constructor() { }
-
-  compilePathRegExps(cmsUrls: CmsUrls): void {
-    // construct full URL-path using cmsUrls
-    const pathRegExp = (cmsUrls.contextPath !== '' ? `/:contextPath(${cmsUrls.contextPath})?` : '') +
-      `/:previewPrefix(${cmsUrls.previewPrefix})?` +
-      (cmsUrls.channelPath !== '' ? `/:channelPath(${cmsUrls.channelPath})?` : '') +
-      '/:pathInfo*';
-
-    this.regexpKeys = [];
-    this.regexp = pathToRegexp(pathRegExp, this.regexpKeys);
+  constructor(private apiUrlsService: ApiUrlsService) {
   }
 
-  parseUrlPath(urlPath: string = '/'): void {
-    const results = this.regexp.exec(urlPath);
-    if (results) {
-      // find the index of preview and path in keys, so we can look up the corresponding results in the results array
-      const pathIdx = this.regexpKeys.findIndex(function (obj) {
-        return obj.name === 'pathInfo';
-      });
-      const previewIdx = this.regexpKeys.findIndex(function (obj) {
-        return obj.name === 'previewPrefix';
-      });
+  getDebugging(): boolean {
+    return this.debugging;
+  }
 
-      const path = results[pathIdx + 1] !== undefined ? results[pathIdx + 1] : '';
-      const preview = results[previewIdx + 1] !== undefined;
-
-      this.requestContext = { path: path, preview: preview };
-    } else {
-      console.log(`Warning! Url ${urlPath} couldn't be parsed, so using defaults for request context`);
-      this.requestContext = { path: '', preview: false };
-    }
+  setDebugging(debugging: boolean): void {
+    this.debugging = debugging;
   }
 
   isPreviewRequest(): boolean {
@@ -55,5 +27,16 @@ export class RequestContextService {
 
   getPath(): string {
     return this.requestContext.path;
+  }
+
+  parseUrlPath(urlPath: string): void {
+    const request: Request = { hostname: window.location.hostname, path: urlPath };
+    this.parseRequest(request);
+  }
+
+  parseRequest(request: Request): void {
+    const apiUrls: ApiUrls = this.apiUrlsService.getApiUrls();
+    const compiledPathRegexp: CompiledPathRegexp = this.apiUrlsService.getCompiledPathRegexp();
+    this.requestContext = _parseRequest(request, compiledPathRegexp, apiUrls, this.debugging);
   }
 }

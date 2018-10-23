@@ -1,4 +1,7 @@
-<div class="hst-container">
+<ng-container *ngIf="!preview">
+  <bre-base-component *ngFor="let component of configuration?.components" [configuration]="component"></bre-base-component>
+</ng-container>
+<div class="hst-container" *ngIf="preview">
   <div class="hst-container-item" *ngFor="let component of configuration?.components">
     <bre-base-component [configuration]="component"></bre-base-component>
   </div>

@@ -1,12 +1,10 @@
 import { Injectable } from '@angular/core';
 
-export interface ComponentMappings {
-  [propName: string]: any;
-}
+import { ComponentMappings } from '../common-sdk/types';
 
 @Injectable()
 export class ComponentMappingsService {
-  componentMappings: ComponentMappings;
+  private componentMappings: ComponentMappings;
 
   constructor() {
     this.componentMappings = {};
@@ -16,14 +14,7 @@ export class ComponentMappingsService {
     return this.componentMappings;
   }
 
-  setComponentMappings(componentMappings: ComponentMappings) {
+  setComponentMappings(componentMappings: ComponentMappings): void {
     this.componentMappings = componentMappings;
-  }
-
-  getComponent(type: string) {
-    if (type in this.componentMappings) {
-      return this.componentMappings[type];
-    }
-    return false;
   }
 }
