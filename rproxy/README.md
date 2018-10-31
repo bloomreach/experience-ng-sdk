@@ -95,4 +95,5 @@ apiUrls = {
 ```
 
 Now you should be able to access the live app at the usual URL <http://localhost:4200> and
-the CMS at <http://localhost/cms>.
+the CMS at <http://127.0.0.1/cms>. Please note the CMS hostname should be 127.0.0.1 and 
+not localhost so that the right hosts configuration is used.
