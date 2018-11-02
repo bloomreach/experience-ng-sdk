@@ -280,6 +280,21 @@ export class StaticComponentExample {
 
 For more detailed examples, see the components included in the [demo application](https://github.com/bloomreach/experience-ng-sdk/tree/master/demo/src/app/cms-components). 
 
+## Building the SDK
+
+You can build the SDK using the following command:
+
+```bash
+ng build --prod bloomreach-experience-ng-sdk
+```
+
+To test out builds locally, you can use the example application that you can build and run from the root:
+
+```bash
+npm install
+npm run start
+```
+
 ## API
 
 ### `ApiUrlsService`
