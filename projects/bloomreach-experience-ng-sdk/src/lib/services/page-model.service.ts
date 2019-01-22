@@ -46,7 +46,7 @@ export class PageModelService {
         this.setPageModelSubject(response);
         const preview: boolean = this.requestContextService.isPreviewRequest();
         const debugging: boolean = this.requestContextService.getDebugging();
-        updatePageMetaData(this.pageModel, this.channelManagerApi, preview, debugging);
+        updatePageMetaData(this.pageModel.page, this.channelManagerApi, preview, debugging);
       }),
       catchError(this.handleError('fetchPageModel', undefined))
     );
