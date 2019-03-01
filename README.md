@@ -1,4 +1,4 @@
-# BloomReach Experience SDK for Angular
+# Bloomreach Experience SDK for Angular ![angular](https://angular.io/assets/images/favicons/favicon.ico)
 
 SDK for powering content and components in Angular applications by [BloomReach Experience](https://www.bloomreach.com/en/products/experience). 
 This library makes integrating an Angular app with BloomReach Experience a breeze. It 
