@@ -27,7 +27,7 @@
     "core-js": "^2.5.4",
     "jsonpointer": "^4.0.1",
     "path-to-regexp": "^2.4.0",
-    "rxjs": "^6.3.3",
+    "rxjs": "6.3.3",
     "zone.js": "~0.8.26"
   },
   "devDependencies": {

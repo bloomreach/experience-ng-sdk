@@ -18,7 +18,7 @@ import { Injectable } from '@angular/core';
 
 import { ComponentMappings } from '../common-sdk/types';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ComponentMappingsService {
   private componentMappings: ComponentMappings;
 

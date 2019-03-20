@@ -19,7 +19,7 @@ import { Injectable } from '@angular/core';
 import { ApiUrls, CompiledPathRegexp } from '../common-sdk/types';
 import { _compilePathRegexp, _setApiUrls, initializeDefaultApiUrls } from '../common-sdk/utils/api-urls';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ApiUrlsService {
   private apiUrls: ApiUrls;
   private compiledPathRegexp: CompiledPathRegexp;

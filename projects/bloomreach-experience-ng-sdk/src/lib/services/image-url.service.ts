@@ -22,7 +22,7 @@ import { RequestContextService } from './request-context.service';
 
 import { _getImageUrl, _getImageUrlByPath } from '../common-sdk/utils/image-url';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ImageUrlService {
   constructor(private apiUrlsService: ApiUrlsService, private requestContextService: RequestContextService,
               private pageModelService: PageModelService) {}

@@ -33,7 +33,7 @@ import {
   toUrlEncodedFormData
 } from '../common-sdk/utils/page-model';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class PageModelService {
   channelManagerApi: any;
   pageModel: any;
@@ -49,11 +49,10 @@ export class PageModelService {
   };
 
   constructor(
-    private http: HttpClient,
     private apiUrlsService: ApiUrlsService,
-    private requestContextService: RequestContextService
+    private requestContextService: RequestContextService,
+    private http: HttpClient
   ) {}
-
   fetchPageModel(): any {
     const apiUrl: string = this.buildApiUrl();
     return this.http.get<any>(apiUrl, this.httpGetOptions).pipe(
