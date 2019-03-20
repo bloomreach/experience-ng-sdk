@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { BehaviorSubject, Observable, of, Subject} from 'rxjs';
@@ -17,11 +17,12 @@ import {
   toUrlEncodedFormData
 } from '../common-sdk/utils/page-model';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class PageModelService {
   channelManagerApi: any;
   pageModel: any;
   pageModelSubject: Subject<any> = new BehaviorSubject<any>(this.pageModel);
+  http: HttpClient;
 
   private httpGetOptions = {
     withCredentials: true
@@ -33,10 +34,28 @@ export class PageModelService {
   };
 
   constructor(
-    private http: HttpClient,
+    private injector: Injector,
     private apiUrlsService: ApiUrlsService,
     private requestContextService: RequestContextService
-  ) {}
+  ) {
+    this.resolveHttpClient();
+  }
+
+  private resolveHttpClient(): void {
+    try {
+      this.http = this.injector.get('bre-http-client');
+    } catch {}
+
+    if (!this.http) {
+      try {
+        this.http = this.injector.get(HttpClient);
+      } catch {
+        throw new Error(`Couldn't resolve HttpClient.
+          Please make sure to import HttpClientModule in your app root module and
+          provide HttpClient class for the 'bre-http-client' token`);
+      }
+    }
+  }
 
   fetchPageModel(): any {
     const apiUrl: string = this.buildApiUrl();
