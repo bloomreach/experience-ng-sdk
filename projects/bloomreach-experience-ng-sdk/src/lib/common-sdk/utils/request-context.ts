@@ -30,6 +30,10 @@ function getPathFromParsedUrl(parsedUrlPath: string, regexpKeys: pathToRegexp.Ke
 }
 
 function detectPreview(request: Request, apiUrls: ApiUrls, parsedUrlPath: string, regexpKeys: pathToRegexp.Key[]): boolean {
+  if (!request.hostname) {
+    return false;
+  }
+
   const hostname: string = getHostname(request.hostname);
 
   // detect CMS/preview mode using query parameter
