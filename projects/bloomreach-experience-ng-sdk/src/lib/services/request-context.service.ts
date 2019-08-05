@@ -45,11 +45,10 @@ export class RequestContextService {
   }
 
   parseUrlPath(urlPath: string): void {
-    const request: Request = {
+    this.parseRequest({
       hostname: (typeof window === 'undefined') ? undefined : window.location.hostname,
-      path: urlPath };
-
-    this.parseRequest(request);
+      path: urlPath,
+    });
   }
 
   parseRequest(request: Request): void {
