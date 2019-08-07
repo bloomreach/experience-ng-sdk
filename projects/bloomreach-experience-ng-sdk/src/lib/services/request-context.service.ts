@@ -1,43 +1,57 @@
-import { Injectable } from '@angular/core';
-
+import { Injectable, Inject, Optional, PLATFORM_ID, InjectionToken } from '@angular/core';
+import { isPlatformBrowser, isPlatformServer, isPlatformWorkerApp, isPlatformWorkerUi } from '@angular/common';
 import { ApiUrlsService } from './api-urls.service';
-
-import { ApiUrls, CompiledPathRegexp, Request, RequestContext } from '../common-sdk/types';
+import { Request, RequestContext } from '../common-sdk/types';
 import { _parseRequest } from '../common-sdk/utils/request-context';
+
+export const REQUEST = new InjectionToken<string>('request');
+
 @Injectable({ providedIn: 'root' })
 export class RequestContextService {
   private requestContext: RequestContext;
   private debugging = false;
 
-  constructor(private apiUrlsService: ApiUrlsService) {
-  }
+  constructor(
+    private apiUrlsService: ApiUrlsService,
+    @Inject(PLATFORM_ID) private platformId,
+    @Optional() @Inject(REQUEST) private request,
+  ) {}
 
-  getDebugging(): boolean {
+  getDebugging() {
     return this.debugging;
   }
 
-  setDebugging(debugging: boolean): void {
+  setDebugging(debugging: boolean) {
     this.debugging = debugging;
   }
 
-  isPreviewRequest(): boolean {
+  isPreviewRequest() {
     return this.requestContext.preview;
   }
 
-  getPath(): string {
+  getPath() {
     return this.requestContext.path;
   }
 
-  parseUrlPath(urlPath: string): void {
-    this.parseRequest({
-      hostname: (typeof window === 'undefined') ? undefined : window.location.hostname,
-      path: urlPath,
-    });
+  parseUrlPath(path: string) {
+    let hostname = '';
+
+    if (isPlatformBrowser(this.platformId)) {
+      ({ hostname = '' } = window && window.location || {});
+    }
+    if (isPlatformWorkerApp(this.platformId) || isPlatformWorkerUi(this.platformId)) {
+      ({ hostname = '' } = self && self.location || {});
+    }
+    if (isPlatformServer(this.platformId)) {
+      ({ hostname = '' } = this.request || {});
+    }
+
+    this.parseRequest({ hostname, path });
   }
 
-  parseRequest(request: Request): void {
-    const apiUrls: ApiUrls = this.apiUrlsService.getApiUrls();
-    const compiledPathRegexp: CompiledPathRegexp = this.apiUrlsService.getCompiledPathRegexp();
+  parseRequest(request: Request) {
+    const apiUrls = this.apiUrlsService.getApiUrls();
+    const compiledPathRegexp = this.apiUrlsService.getCompiledPathRegexp();
     this.requestContext = _parseRequest(request, compiledPathRegexp, apiUrls, this.debugging);
   }
 }

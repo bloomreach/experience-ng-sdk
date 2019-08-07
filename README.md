@@ -398,22 +398,34 @@ consequently Channel Manager functionality is enabled.
 
 #### Methods
 
-- `parseUrlPath(urlPath: string)` - `None` parses the current URL-path for detecting the 
+- `parseUrlPath(urlPath: string): void` - parses the current URL-path for detecting the
  current URL and preview detection.
-- `parseRequest(request: Request)` - `None` parses the current request for detecting the 
- current URL and preview detection. See `Request` type below for format of the `request` 
+- `parseRequest(request: Request): void` - parses the current request for detecting the
+ current URL and preview detection. See `Request` type below for format of the `request`
  parameter.
-- `isPreviewRequest()` - `Boolean` returns if preview mode is active/detected.
-- `getDebugging()` - `Boolean` returns if debugging mode is enabled or not
-- `setDebugging(debugging: boolean)` - `None` sets debugging mode which enables detailed 
+- `isPreviewRequest(): boolean` - returns if preview mode is active/detected.
+- `getDebugging(): boolean` - returns if debugging mode is enabled or not
+- `setDebugging(debugging: boolean): void` - sets debugging mode which enables detailed
  logging on request parsing, Channel Manager integration, and component updates.
 
 #### `Request` type
 
-- `hostname`: `String` should contain the hostname for the current request (client-side 
- this is window.location.hostname)
-- `path`: `String` should contain the URL-path for the current request (client-side this 
- is window.location.pathname)
+- `hostname: string` - should contain the hostname for the current request:
+  - `window.location.hostname` for client-side rendering (Browser Platform);
+  - `self.location.hostname` for Web Workers (Worker Platform);
+  - `request.hostname` for server-side rendering (Server Platform/Angular Universal).
+    For server-side rendering, the SDK expects the request to be injected as `REQUEST` token:
+    ```javascript
+    import { REQUEST } from 'bloomreach-experience-ng-sdk';
+
+    // ...
+    providers: [
+      { provide: REQUEST, useValue: request },
+    ],
+    // ...
+    ```
+
+- `path: string` - should contain the URL-path for the current request (client-side this is window.location.pathname).
 
 ### `<bre-render-cms-component>`
 
