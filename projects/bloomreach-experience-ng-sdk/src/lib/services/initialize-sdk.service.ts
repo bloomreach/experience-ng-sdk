@@ -1,77 +1,66 @@
-import { Injectable, Inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-
 import { RequestContextService } from './request-context.service';
-import { ApiUrlsService } from './api-urls.service';
 import { PageModelService } from './page-model.service';
 import { _initializeCmsIntegration } from '../common-sdk/utils/initialize-cms-integration';
 import { logCmsCreateOverlay } from '../common-sdk/utils/page-model';
-import { Subscription, Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class InitializeSdkService {
-
   constructor(
     private pageModelService: PageModelService,
     private requestContextService: RequestContextService,
     private router: Router
   ) {
+    this.onCmsInitialization = this.onCmsInitialization.bind(this);
+    this.onComponentUpdate = this.onComponentUpdate.bind(this);
   }
 
-  initialize(sdkInitOptions?: InitializeSdkOptions): Subscription {
-
-    const defaultSdkInitOptions: InitializeSdkOptions = {
-      fetchPageModel: true,
-      subscribeToRouterEvents: true
-    };
-
-    const options = Object.assign(defaultSdkInitOptions, sdkInitOptions || {});
+  initialize({initializePageModel = true, initializeRouterEvents = true} = {}) {
     this.initializeCmsIntegration();
 
-    if (options.fetchPageModel) {
+    if (initializePageModel) {
       this.fetchPageModel();
     }
 
-    if (options.subscribeToRouterEvents) {
-      // fetch Page Model API when navigated to a PageComponent
-      return this.router.events.subscribe(event => {
-        if (event instanceof NavigationEnd) {
-          this.requestContextService.parseUrlPath(event.url);
-          this.fetchPageModel();
-        }
-      });
+    if (initializeRouterEvents) {
+      return this.initializeRouterEvents();
     }
 
     return;
   }
 
-  private fetchPageModel(): Observable<any> {
-    const fetchPageModelObservable = this.pageModelService.fetchPageModel();
-    fetchPageModelObservable.subscribe();
-    return fetchPageModelObservable;
+  protected initializeCmsIntegration() {
+    _initializeCmsIntegration(this.onCmsInitialization, this.onComponentUpdate);
   }
 
-  // using arrow function so that scope (this) is preserved on callback
-  private updateComponent = (id: string, propertiesMap): void => {
-    this.pageModelService.updateComponent(id, propertiesMap).subscribe();
+  protected initializeRouterEvents() {
+    return this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.requestContextService.parseUrlPath(event.url);
+        this.fetchPageModel();
+      }
+    });
   }
 
-  private initializeCmsIntegration(): void {
-    _initializeCmsIntegration(this.onCmsInitialization, this.updateComponent);
+  protected fetchPageModel() {
+    const pageModel$ = this.pageModelService.fetchPageModel();
+    pageModel$.subscribe();
+
+    return pageModel$;
   }
 
-  // using arrow function so that scope (this) is preserved on callback
-  private onCmsInitialization = (cms: any): void => {
-    const debugging: boolean = this.requestContextService.getDebugging();
+  private onCmsInitialization(cms: any) {
+    const debugging = this.requestContextService.getDebugging();
     this.pageModelService.setChannelManagerApi(cms);
     if (this.pageModelService.getPageModel()) {
       cms.createOverlay();
       logCmsCreateOverlay(debugging);
     }
   }
-}
 
-export interface InitializeSdkOptions {
-  fetchPageModel: boolean;
-  subscribeToRouterEvents: boolean;
+  private onComponentUpdate(id: string, propertiesMap) {
+    this.pageModelService.updateComponent(id, propertiesMap).subscribe();
+  }
 }
