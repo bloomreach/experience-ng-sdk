@@ -29,33 +29,15 @@ function getPathFromParsedUrl(parsedUrlPath: string, regexpKeys: pathToRegexp.Ke
   return '';
 }
 
-function detectPreview(request: Request, apiUrls: ApiUrls, parsedUrlPath: string, regexpKeys: pathToRegexp.Key[]): boolean {
-  if (!request.hostname) {
-    return false;
-  }
-
-  const hostname: string = getHostname(request.hostname);
-
-  // detect CMS/preview mode using query parameter
-  let preview: boolean = hasPreviewQueryParameter(request.path);
-  if (!preview) {
-    // otherwise use hostname
-    preview = isMatchingPreviewHostname(hostname, apiUrls);
-  }
-  if (!preview) {
-    // or use preview prefix for preview detection
-    preview = hasPreviewPathPrefix(parsedUrlPath, regexpKeys);
-  }
-
-  return preview;
+function detectPreview(request: Request, apiUrls: ApiUrls, parsedUrlPath: string, regexpKeys: pathToRegexp.Key[]) {
+  return hasPreviewQueryParameter(request.path)
+    || hasPreviewPathPrefix(parsedUrlPath, regexpKeys)
+    || request.hostname && isMatchingPreviewHostname(getHostname(request.hostname), apiUrls);
 }
 
 // removes port number from hostname
-function getHostname(hostname: string): string {
-  if (hostname.indexOf(':') !== -1) {
-    return hostname.substring(0, hostname.indexOf(':'));
-  }
-  return hostname;
+function getHostname(hostname: string) {
+  return hostname.split(':', 2)[0];
 }
 
 function hasPreviewQueryParameter(urlPath: string): boolean {
