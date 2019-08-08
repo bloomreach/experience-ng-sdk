@@ -1,12 +1,12 @@
-export function _initializeCmsIntegration(onCmsInitialization: Function, renderComponent: Function): void {
+export type InitFunction = (cms) => void;
+export type RenderFunction = (id, propertiesMap) => void;
+
+declare const window: {
+  SPA?: { init: InitFunction, renderComponent: RenderFunction },
+};
+
+export function _initializeCmsIntegration(init: InitFunction, renderComponent: RenderFunction) {
   if (typeof window !== 'undefined') {
-    (<any>window).SPA = {
-      init: (cms) => {
-        onCmsInitialization(cms);
-      },
-      renderComponent: (id, propertiesMap) => {
-        renderComponent(id, propertiesMap);
-      }
-    };
+    window.SPA = { init, renderComponent };
   }
 }

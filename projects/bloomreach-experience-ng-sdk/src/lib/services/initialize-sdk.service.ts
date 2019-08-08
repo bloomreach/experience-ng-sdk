@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { NavigationEnd, Router } from '@angular/router';
 import { RequestContextService } from './request-context.service';
 import { PageModelService } from './page-model.service';
@@ -11,13 +12,14 @@ export class InitializeSdkService {
   constructor(
     private pageModelService: PageModelService,
     private requestContextService: RequestContextService,
-    private router: Router
+    private router: Router,
+    @Inject(PLATFORM_ID) private platformId,
   ) {
     this.onCmsInitialization = this.onCmsInitialization.bind(this);
     this.onComponentUpdate = this.onComponentUpdate.bind(this);
   }
 
-  initialize({initializePageModel = true, initializeRouterEvents = true} = {}) {
+  initialize({initializePageModel = true, initializeRouterEvents = true} = {}): Subscription | void {
     this.initializeCmsIntegration();
 
     if (initializePageModel) {
@@ -32,7 +34,9 @@ export class InitializeSdkService {
   }
 
   protected initializeCmsIntegration() {
-    _initializeCmsIntegration(this.onCmsInitialization, this.onComponentUpdate);
+    if (isPlatformBrowser(this.platformId)) {
+      _initializeCmsIntegration(this.onCmsInitialization, this.onComponentUpdate);
+    }
   }
 
   protected initializeRouterEvents() {
