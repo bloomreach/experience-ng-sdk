@@ -45,12 +45,13 @@ export class BrePageDemoComponent implements OnInit {
 
   menuComponent = MenuComponent;
 
-  constructor(private router: Router,
+  constructor(
+    private router: Router,
     private apiUrlsService: ApiUrlsService,
     private componentMappingsService: ComponentMappingsService,
     private initializeSdkService: InitializeSdkService,
-    private requestContextService: RequestContextService) {
-    }
+    private requestContextService: RequestContextService
+  ) {}
 
   ngOnInit() {
     this.apiUrlsService.setApiUrls(this.apiUrls);
