@@ -49,6 +49,7 @@ components. There's also an API section below that includes more details.
 
 ```typescript
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { ApiUrlsService, ComponentMappingsService, InitializeSdkService, RequestContextService } from 'bloomreach-experience-ng-sdk';
 
 @Component({
@@ -68,15 +69,18 @@ export class MyAppClass implements OnInit {
     }
   }
   
-  constructor(private apiUrlsService: ApiUrlsService,
-              private componentMappingsService: ComponentMappingsService,
-              private initializeSdkService: InitializeSdkService,
-              private requestContextService: RequestContextService) {}
+  constructor(
+    private router: Router,
+    private apiUrlsService: ApiUrlsService,
+    private componentMappingsService: ComponentMappingsService,
+    private initializeSdkService: InitializeSdkService,
+    private requestContextService: RequestContextService
+  ) {}
 
   ngOnInit() {
     this.apiUrlsService.setApiUrls(this.apiUrls);
     this.componentMappingsService.setComponentMappings(this.componentMappings);
-    this.requestContextService.parseUrlPath(window.location.pathname);
+    this.requestContextService.parseUrlPath(this.router.url);
     this.initializeSdkService.initialize();
   }
 }
@@ -372,8 +376,9 @@ Service that handles initialization of the SDK, including:
 
 #### Methods
 
-- `initialize()` - `None` initializes the SDK by fetching the Page Model and initializing 
- the Channel manager integration.
+- `initialize({initializePageModel = true, initializeRouterEvents = true}): Subscription | void` - initializes the SDK by fetching the Page Model and initializing the Channel manager integration. Returns router events subscription or void if `initializeRouterEvents` is `false`.
+  - `initializePageModel: boolean` - flag to fetch the Page Model on initialization;
+  - `initializeRouterEvents: boolean` - flag to subscribe for router events.
 
 ### `PageModelService`
 
