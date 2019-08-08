@@ -19,10 +19,10 @@ import pathToRegexp from 'path-to-regexp';
 import { ApiUrls, CompiledPathRegexp, Request, RequestContext } from '../types';
 
 export function _parseRequest(request: Request, compiledPathRegexp: CompiledPathRegexp, apiUrls: ApiUrls, debug: boolean): RequestContext {
-  const parsedUrlPath: string = compiledPathRegexp.regexp.exec(request.path);
-
-  const path: string = getPathFromParsedUrl(parsedUrlPath, compiledPathRegexp.regexpKeys);
-  const preview: boolean = detectPreview(request, apiUrls, parsedUrlPath, compiledPathRegexp.regexpKeys);
+  const [urlPath] = request.path.split('?', 2);
+  const parsedUrlPath = compiledPathRegexp.regexp.exec(urlPath);
+  const path = getPathFromParsedUrl(parsedUrlPath, compiledPathRegexp.regexpKeys);
+  const preview = detectPreview(request, apiUrls, parsedUrlPath, compiledPathRegexp.regexpKeys);
 
   if (debug) {
     console.log(`### SDK debugging ### parsing URL-path '%s'`, request.path);
