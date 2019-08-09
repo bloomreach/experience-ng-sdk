@@ -1,6 +1,6 @@
 {
   "name": "bloomreach-experience-ng-sdk-csr-app",
-  "version": "0.1.1-rc1",
+  "version": "0.2.0",
   "scripts": {
     "ng": "ng",
     "start": "ng build --prod bloomreach-experience-ng-sdk && ng serve",
