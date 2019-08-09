@@ -15,9 +15,10 @@
  */
 
 import jsonpointer from 'jsonpointer';
-
 import { ApiUrls, EnvironmentApiUrls } from '../types';
 import { addPageMetaData } from './cms-meta-data';
+
+const SSO_HANDSHAKE = /(?:^|&)(org.hippoecm.hst.container.render_host=.+?)(?:&|$)/;
 
 export function updatePageMetaData(pageModel: any, channelManagerApi: any, preview: boolean, debugging: boolean): void {
   addPageMetaData(pageModel, preview);
@@ -27,7 +28,7 @@ export function updatePageMetaData(pageModel: any, channelManagerApi: any, previ
   }
 }
 
-export function _buildApiUrl(apiUrls: ApiUrls, preview: boolean, urlPath: string, componentId?: string): string {
+export function _buildApiUrl(apiUrls: ApiUrls, preview: boolean, urlPath: string, query: string, componentId?: string): string {
   // use either preview or live URLs
   const envApiUrls: EnvironmentApiUrls = preview ? apiUrls.preview : apiUrls.live;
 
@@ -50,6 +51,12 @@ export function _buildApiUrl(apiUrls: ApiUrls, preview: boolean, urlPath: string
   if (componentId) {
     url = addComponentRenderingURL(url, componentId, apiUrls);
   }
+
+  const [, ssoHandshake = ''] = (query && query.match(SSO_HANDSHAKE)) || [];
+  if (ssoHandshake) {
+    url += (url.indexOf('?') === -1 ? '?' : '&') + ssoHandshake;
+  }
+
   return url;
 }
 

@@ -19,7 +19,7 @@ import pathToRegexp from 'path-to-regexp';
 import { ApiUrls, CompiledPathRegexp, Request, RequestContext } from '../types';
 
 export function _parseRequest(request: Request, compiledPathRegexp: CompiledPathRegexp, apiUrls: ApiUrls, debug: boolean): RequestContext {
-  const [urlPath] = request.path.split('?', 2);
+  const [urlPath, query = ''] = request.path.split('?', 2);
   const parsedUrlPath = compiledPathRegexp.regexp.exec(urlPath);
   const path = getPathFromParsedUrl(parsedUrlPath, compiledPathRegexp.regexpKeys);
   const preview = detectPreview(request, apiUrls, parsedUrlPath, compiledPathRegexp.regexpKeys);
@@ -30,7 +30,7 @@ export function _parseRequest(request: Request, compiledPathRegexp: CompiledPath
     console.log(`### SDK debugging ### preview mode is %s`, preview);
   }
 
-  return new RequestContext(path, preview);
+  return new RequestContext(path, preview, query);
 }
 
 function getPathFromParsedUrl(parsedUrlPath: string, regexpKeys: pathToRegexp.Key[]): string {

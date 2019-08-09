@@ -44,7 +44,7 @@ export interface Request {
 }
 
 export class RequestContext {
-  constructor(public path: string, public preview: boolean) {}
+  constructor(public path: string, public preview: boolean, public query: string) {}
 }
 
 export interface ComponentMappings {
