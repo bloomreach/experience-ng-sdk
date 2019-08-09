@@ -33,6 +33,10 @@ export class RequestContextService {
     return this.requestContext.path;
   }
 
+  getQuery() {
+    return this.requestContext.query;
+  }
+
   parseUrlPath(path: string) {
     let hostname = '';
 

@@ -90,10 +90,12 @@ export class PageModelService {
   }
 
   private buildApiUrl(componentId?: string): string {
-    const apiUrls: ApiUrls = this.apiUrlsService.getApiUrls();
-    const preview: boolean = this.requestContextService.isPreviewRequest();
-    const urlPath: string = this.requestContextService.getPath();
-    return _buildApiUrl(apiUrls, preview, urlPath, componentId);
+    const apiUrls = this.apiUrlsService.getApiUrls();
+    const preview = this.requestContextService.isPreviewRequest();
+    const urlPath = this.requestContextService.getPath();
+    const query = this.requestContextService.getQuery();
+
+    return _buildApiUrl(apiUrls, preview, urlPath, query, componentId);
   }
 
   /**
