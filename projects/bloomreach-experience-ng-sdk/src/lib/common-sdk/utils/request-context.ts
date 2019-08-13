@@ -53,7 +53,7 @@ function detectPreview(request: Request, apiUrls: ApiUrls, parsedUrlPath: string
 
 // removes port number from hostname
 function getHostname(hostname: string) {
-  return hostname.split(':', 2)[0];
+  return hostname.split(':', 1)[0];
 }
 
 function hasPreviewQueryParameter(urlPath: string): boolean {
