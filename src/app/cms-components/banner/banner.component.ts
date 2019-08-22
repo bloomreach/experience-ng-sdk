@@ -23,9 +23,9 @@ export class BannerComponent extends SingleContentComponent implements BaseCompo
   }
 
   getLink() {
-    const linkRef = this.content.link ? this.content.link['$ref'] : null;
+    const linkRef = this.content && this.content.link && this.content.link['$ref'] || null;
     if (linkRef) {
-      const linkedContent = this.pageModelService.getContentViaReference(this.content.link['$ref']);
+      const linkedContent = this.pageModelService.getContentViaReference(linkRef);
       this.link = getNestedObject(linkedContent, ['_links', 'site', 'href']);
     }
   }
