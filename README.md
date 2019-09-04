@@ -498,6 +498,6 @@ nested objects/values without having to string null checks together.
 
 Nothing here yet :)
 
-## Author
+## License
 
-Robbert Kauffman - BloomReach
+Apache 2.0
