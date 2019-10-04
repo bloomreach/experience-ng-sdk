@@ -373,6 +373,7 @@ Service that handles initialization of the SDK, including:
 - Fetching initial Page Model via `PageModelService`, and updates to the Page Model on 
  navigation changes or component updates in the CMS.
 - Initializating the Channel Manager integration.
+- Restoring the Page Model state using [Transfer State API](https://angular.io/api/platform-browser/TransferState). To use it import [ServerTransferStateModule](https://angular.io/api/platform-server/ServerTransferStateModule) on the server and [BrowserTransferStateModule](https://angular.io/api/platform-browser/BrowserTransferStateModule) on the client.
 
 #### Methods
 
@@ -389,6 +390,7 @@ Fetches the Page Model API and manages state.
 - `getPageModel()` - `Object` return the Page Model. Please note that this is a 
  synchronous call, so if this is called during initialization, the Page Model might not
  have been set yet. Use `getPageModelSubject()` in these cases.
+- `setPageModel(value: any)` - update the Page Model and push the value to the Page Model subject (see `getPageModelSubject()`).
 - `getPageModelSubject()` `Subject<Object>` return a subject of the Page Model that can be 
  subscribed to for asynchronous access to the Page Model.
 - `getContentViaReference(contentRef: string)` - `Object` returns content item from Page 

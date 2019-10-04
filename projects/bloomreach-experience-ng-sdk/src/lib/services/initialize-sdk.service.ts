@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Inject, Injectable, Optional, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser, isPlatformServer } from '@angular/common';
+import { makeStateKey, TransferState } from '@angular/platform-browser';
 import { NavigationEnd, Router } from '@angular/router';
 import { RequestContextService } from './request-context.service';
 import { PageModelService } from './page-model.service';
 import { _initializeCmsIntegration } from '../common-sdk/utils/initialize-cms-integration';
 import { logCmsCreateOverlay } from '../common-sdk/utils/page-model';
 import { Observable, Subscription } from 'rxjs';
+import { first } from 'rxjs/operators';
+
+const PAGE_MODEL_STATE_KEY = 'pageModel';
 
 @Injectable({ providedIn: 'root' })
 export class InitializeSdkService {
@@ -30,6 +34,7 @@ export class InitializeSdkService {
     private requestContextService: RequestContextService,
     private router: Router,
     @Inject(PLATFORM_ID) private platformId,
+    @Optional() @Inject(TransferState) private transferState: TransferState,
   ) {
     this.onCmsInitialization = this.onCmsInitialization.bind(this);
     this.onComponentUpdate = this.onComponentUpdate.bind(this);
@@ -39,7 +44,7 @@ export class InitializeSdkService {
     this.initializeCmsIntegration();
 
     if (initializePageModel) {
-      this.fetchPageModel();
+      this.initializePageModel();
     }
 
     if (initializeRouterEvents) {
@@ -55,20 +60,33 @@ export class InitializeSdkService {
     }
   }
 
+  protected initializePageModel() {
+    const stateKey = this.transferState && makeStateKey(PAGE_MODEL_STATE_KEY);
+    const hasState = !isPlatformServer(this.platformId) && this.transferState && this.transferState.hasKey(stateKey);
+    const $pageModel = hasState
+      ? this.pageModelService.setPageModel(this.transferState.get(stateKey, null))
+      : this.pageModelService.fetchPageModel();
+
+    $pageModel
+      .pipe(first())
+      .subscribe(() => {
+        if (hasState) {
+          this.transferState.remove(stateKey);
+        }
+      });
+
+    if (isPlatformServer(this.platformId) && this.transferState) {
+      this.transferState.onSerialize(stateKey, () => this.pageModelService.pageModel);
+    }
+  }
+
   protected initializeRouterEvents() {
     return this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         this.requestContextService.parseUrlPath(event.url);
-        this.fetchPageModel();
+        this.initializePageModel();
       }
     });
-  }
-
-  protected fetchPageModel() {
-    const pageModel$ = this.pageModelService.fetchPageModel();
-    pageModel$.subscribe();
-
-    return pageModel$;
   }
 
   private onCmsInitialization(cms: any) {

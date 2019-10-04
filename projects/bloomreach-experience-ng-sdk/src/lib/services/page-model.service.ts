@@ -16,14 +16,10 @@
 
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-
 import { BehaviorSubject, Observable, of, Subject} from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-
 import { ApiUrlsService } from './api-urls.service';
 import { RequestContextService } from './request-context.service';
-
-import { ApiUrls } from '../common-sdk/types';
 import {
   _buildApiUrl,
   _getContentViaReference,
@@ -51,20 +47,27 @@ export class PageModelService {
   constructor(
     private apiUrlsService: ApiUrlsService,
     private requestContextService: RequestContextService,
-    private http: HttpClient
-  ) {}
+    private http: HttpClient,
+  ) {
+    this.pageModelSubject.subscribe(() => this.processPageModel());
+  }
+
   fetchPageModel() {
     const apiUrl: string = this.buildApiUrl();
     return this.http.get<any>(apiUrl, this.httpGetOptions).pipe(
-      tap(response => {
-        this.pageModel = response;
-        this.setPageModelSubject(response);
-        const preview: boolean = this.requestContextService.isPreviewRequest();
-        const debugging: boolean = this.requestContextService.getDebugging();
-        updatePageMetaData(this.pageModel.page, this.channelManagerApi, preview, debugging);
-      }),
+      tap(response => void this.setPageModel(response)),
       catchError(this.handleError('fetchPageModel', undefined))
     );
+  }
+
+  private processPageModel() {
+    if (!this.pageModel) {
+      return;
+    }
+
+    const preview = this.requestContextService.isPreviewRequest();
+    const debugging = this.requestContextService.getDebugging();
+    updatePageMetaData(this.pageModel.page, this.channelManagerApi, preview, debugging);
   }
 
   // no subject is needed for some classes that get the page-model after the initial fetch, such as the ImageUrlService
@@ -72,12 +75,15 @@ export class PageModelService {
     return this.pageModel;
   }
 
-  getPageModelSubject(): Subject<any> {
-    return this.pageModelSubject;
+  setPageModel(value: any) {
+    this.pageModel = value;
+    this.pageModelSubject.next(value);
+
+    return this.pageModelSubject.asObservable();
   }
 
-  private setPageModelSubject(pageModel: any): void {
-    this.pageModelSubject.next(pageModel);
+  getPageModelSubject(): Subject<any> {
+    return this.pageModelSubject;
   }
 
   setChannelManagerApi(channelManagerApi: any): void {
@@ -94,9 +100,15 @@ export class PageModelService {
 
     return this.http.post<any>(url, body, this.httpPostOptions).pipe(
       tap(response => {
-        const preview: boolean = this.requestContextService.isPreviewRequest();
-        this.pageModel = _updateComponent(response, componentId, this.pageModel, this.channelManagerApi, preview, debugging);
-        this.setPageModelSubject(this.pageModel);
+        const preview = this.requestContextService.isPreviewRequest();
+        this.setPageModel(_updateComponent(
+          response,
+          componentId,
+          this.pageModel,
+          this.channelManagerApi,
+          preview,
+          debugging
+        ));
       }),
       catchError(this.handleError('updateComponent', undefined)));
   }

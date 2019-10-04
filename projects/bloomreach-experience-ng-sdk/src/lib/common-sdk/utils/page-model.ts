@@ -109,7 +109,6 @@ export function _updateComponent(
       }
       Object.assign(pageModel.content, response.content);
     }
-    updatePageMetaData(pageModel, channelManagerApi, preview, debugging);
   }
   return pageModel;
 }
