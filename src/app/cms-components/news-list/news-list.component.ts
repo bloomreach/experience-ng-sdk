@@ -27,14 +27,20 @@ export class NewsListComponent implements BaseComponent, OnInit {
   @Input() configuration: any;
   @Input() content: any;
   items: any;
+  pageable: any;
 
   constructor() { }
 
   ngOnInit() {
     this.createList();
+    this.createPagination();
   }
 
   createList() {
     this.items = getNestedObject(this.configuration, ['models', 'pageable', 'items']);
+  }
+
+  createPagination() {
+    this.pageable = getNestedObject(this.configuration, ['models', 'pageable']);
   }
 }

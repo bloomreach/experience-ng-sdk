@@ -17,9 +17,26 @@
   <div class="col-sm-12 news-list">
     <app-essentials-news-item *ngFor="let item of items" [contentRef]="item"></app-essentials-news-item>
   </div>
-  <nav class="blog-pagination">
-    <span class="btn btn-outline-primary disabled">Older</span>
-    <span class="btn btn-outline-secondary disabled">Newer</span>
-  </nav>
+  <div class="col-sm-12" *ngIf="pageable.showPagination">
+    <nav aria-label="News List Pagination">
+      <ul class="pagination">
+        <li [ngClass]="{ 'page-item': true, 'disabled': !pageable.previous }">
+          <a class="page-link" href="{{ pageable.previous ? '?page=' + pageable.previousPage : '#' }}" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+            <span class="sr-only">Previous</span>
+          </a>
+        </li>
+        <li *ngFor="let page of pageable.pageNumbersArray" [ngClass]="{ 'page-item': true, 'active': page === pageable.currentPage }">
+          <a class="page-link" href="?page={{page}}">{{page}}</a>
+        </li>
+        <li [ngClass]="{ 'page-item': true, 'disabled': !pageable.next }">
+          <a class="page-link" href="{{ pageable.next ? '?page=' + pageable.nextPage : '#' }}" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+            <span class="sr-only">Next</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
 </div>
 <ng-template #configureComponentBlock>Click to configure {{configuration.label}}</ng-template>
