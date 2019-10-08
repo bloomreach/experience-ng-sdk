@@ -18,8 +18,6 @@ import jsonpointer from 'jsonpointer';
 import { ApiUrls, EnvironmentApiUrls } from '../types';
 import { addPageMetaData } from './cms-meta-data';
 
-const SSO_HANDSHAKE = /(?:^|&)(org.hippoecm.hst.container.render_host=.+?)(?:&|$)/;
-
 export function updatePageMetaData(pageModel: any, channelManagerApi: any, preview: boolean, debugging: boolean): void {
   addPageMetaData(pageModel, preview);
   if (channelManagerApi) {
@@ -52,9 +50,8 @@ export function _buildApiUrl(apiUrls: ApiUrls, preview: boolean, urlPath: string
     url = addComponentRenderingURL(url, componentId, apiUrls);
   }
 
-  const [, ssoHandshake = ''] = (query && query.match(SSO_HANDSHAKE)) || [];
-  if (ssoHandshake) {
-    url += (url.indexOf('?') === -1 ? '?' : '&') + ssoHandshake;
+  if (query) {
+    url += (url.includes('?') ? '&' : '?') + query;
   }
 
   return url;
