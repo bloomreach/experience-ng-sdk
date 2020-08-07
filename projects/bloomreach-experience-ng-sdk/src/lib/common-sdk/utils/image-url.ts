@@ -19,6 +19,8 @@ import jsonpointer from 'jsonpointer';
 import { ApiUrls, EnvironmentApiUrls } from '../types';
 import getNestedObject from '../utils/get-nested-object';
 
+const FULLY_QUALIFIED_LINK = /\w+:\/\//;
+
 export interface ImageReference {
   $ref: string;
 }
@@ -31,10 +33,10 @@ export function _getImageUrl(imageRef: ImageReference, pageModel: any, preview: 
   const image: any = imageUuid ? jsonpointer.get(pageModel, imageUuid) : undefined;
 
   // build URL
-  let imageUrl: string;
-  if (getNestedObject(image, ['_links', 'site', 'href'])) {
+  let imageUrl = getNestedObject(image, ['_links', 'site', 'href']);
+  if (imageUrl && !imageUrl.match(FULLY_QUALIFIED_LINK)) {
     const baseUrl: string = preview ? apiUrls.preview.baseUrl : apiUrls.live.baseUrl;
-    imageUrl = baseUrl + image._links.site.href;
+    imageUrl = baseUrl + imageUrl;
   }
 
   return imageUrl;
