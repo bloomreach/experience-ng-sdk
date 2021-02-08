@@ -1,5 +1,7 @@
 # Bloomreach Experience SDK for Angular ![angular](https://angular.io/assets/images/favicons/favicon.ico)
 
+> The BloomReach Experience SDK for Angular works only with [Bloomreach Experience](https://www.bloomreach.com/en/products/experience-manager) version 13 and below. Please use [@bloomreach/ng-sdk](https://www.npmjs.com/package/@bloomreach/ng-sdk) with all the latest versions of Bloomreach Experience.
+
 SDK for powering content and components in Angular applications by [BloomReach Experience](https://www.bloomreach.com/en/products/experience). 
 This library makes integrating an Angular app with BloomReach Experience a breeze. It 
 supports both client-side- and server-side rendered/universal Angular apps. 
